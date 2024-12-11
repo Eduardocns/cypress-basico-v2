@@ -32,7 +32,7 @@ describe('template spec', () => {
       .type('abcdefghij')
       .should('have.value', '')
   })
-  it.only('Exibe mensagem de erro quando o telefone se torna obrigatorio, mas não é preenchido antes do envio do formulario', () => {
+  it('Exibe mensagem de erro quando o telefone se torna obrigatorio, mas não é preenchido antes do envio do formulario', () => {
     
     cy.get('#firstName').type("Eduardo")
     cy.get('#lastName').type("Chagas")
@@ -43,7 +43,7 @@ describe('template spec', () => {
     cy.get('.error').should("be.visible")
  
   })
-  it('Preencvhe e limpa os campos nome, sobrenome, email e telefone ',  () =>{
+  it('Preenche e limpa os campos nome, sobrenome, email e telefone ',  () =>{
     cy.get('#firstName').type("Eduardo")
     .should('have.value', 'Eduardo')
     .clear()
@@ -112,4 +112,43 @@ describe('template spec', () => {
     .uncheck()
     .should('not.be.checked')
   })
+  it('Seleciona um arquivo da pasta fixture', function(){
+    cy.get('input[type="file"]')
+    .should('not.have.value')
+    .selectFile('./cypress/fixtures/example.json')
+    .should(function($input){
+      expect($input[0].files[0].name).to.equal('example.json')
+      
+    })
+  })
+  it('Seleciona um arquivo simulando um drag-and-drop',() =>{
+    cy.get('input[type="file"]')
+    .should('not.have.value')
+    .selectFile('./cypress/fixtures/example.json', {action: 'drag-drop'})//arrasta o arquivo ao invés de selecionar
+    .should(function($input){
+      expect($input[0].files[0].name).to.equal('example.json')
+      
+    })
+  })
+  it('Seleciona o arquivo utilizando uma fixture para a qual foi dada um alias', () =>{
+    cy.fixture('example.json').as('sampleFile')
+    cy.get('input[type="file"]')
+    .selectFile('@sampleFile')
+    .selectFile('./cypress/fixtures/example.json', {action: 'drag-drop'})//arrasta o arquivo ao invés de selecionar
+    .should(function($input){
+      expect($input[0].files[0].name).to.equal('example.json')
+  })
+  })
+  it('Verifica que a politica de privacidade abre em outra aba sem a necessidade de um clique', ()=>{
+    cy.get('a').should('have.attr', 'target', '_blank')
+  })
+  it('acessa página dea política de privacidade removendo o target e então clicando no link', () =>{
+    cy.get('#privacy a')
+    .invoke('removeAttr', 'target')
+    .click()
+
+    cy.contains('Talking About Testing').should('be.visible')
+  })
+ 
+   
 })
